@@ -35,15 +35,3 @@
 > 수업/과제 코드는 Classroom에서 생성된 개인 저장소에서 작성하고 `push`로 제출합니다.
 
 
-
----
-
-
-
-## 사용 방법
-
-1) 이 저장소를 **Clone** 합니다.
-
-```bash
-
-git clone https://github.com/csepgm/mobilepgm-course-materials.git
