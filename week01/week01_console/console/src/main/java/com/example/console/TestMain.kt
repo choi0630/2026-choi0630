@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 fun main() {
+    println("202415209 최정수")
     enableUtf8Console()
     val items = ArrayList<String>()
     val maxItems = 50
