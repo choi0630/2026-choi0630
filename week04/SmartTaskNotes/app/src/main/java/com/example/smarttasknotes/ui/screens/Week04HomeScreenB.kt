@@ -102,7 +102,7 @@ fun Week04HomeScreenB(modifier: Modifier = Modifier) {
 
             // TODO : TaskNoteItem04가 수행되도록 수정
             itemList.forEach {
-                TaskNoteItem04(item = it)
+                TaskNoteItem04(item = it, toggleTaskDone = toggleTaskDone)
                 Spacer(Modifier.height(8.dp))
             }
         }

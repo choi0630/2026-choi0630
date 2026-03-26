@@ -10,10 +10,10 @@ import androidx.compose.ui.unit.dp
 import com.example.smarttasknotes.data.mock.MockDataFactory
 import com.example.smarttasknotes.data.model.TaskNoteType
 
-// 💡 수정: 중복된 함수를 지우고, item을 받아서 구분하는 로직 하나로 합쳤습니다.
+
 @Composable
 fun TaskNoteItem(item: TaskNoteType, modifier: Modifier = Modifier) {
-    // 데이터가 Task(할 일)인지 Note(메모)인지에 따라 다른 디자인을 보여줍니다.
+    
     when (item) {
         is TaskNoteType.Task -> TaskItem(item = item, modifier = modifier)
         is TaskNoteType.Note -> NoteItem(item = item, modifier = modifier)

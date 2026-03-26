@@ -85,7 +85,7 @@ fun Week04HomeScreenA(modifier: Modifier = Modifier) {
     }
 }
 
-// 💡 여기서부터 추가된 미리보기 코드입니다!
+
 @Preview(showBackground = true)
 @Composable
 fun Week04HomeScreenAPreview() {
