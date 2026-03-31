@@ -23,8 +23,8 @@ import com.example.smarttasknotes.data.model.TaskNoteType
 @Composable
 fun TaskItem04(
     item: TaskNoteType.Task,
-    toggleTaskDone: (Int) -> Unit,
-    modifier: Modifier = Modifier,
+    onChecked:()-> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card {
 
@@ -39,36 +39,34 @@ fun TaskItem04(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
                     checked = item.done,
-                    onCheckedChange = {
-                        toggleTaskDone(item.id)
-                    }
+                    onCheckedChange = {onChecked()}
                 )
-
                 Text(
-                    text = " ${item.title}",
+                    text = "${item.title}",
                     textDecoration = if (item.done) TextDecoration.LineThrough else TextDecoration.None,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = "📅 ${item.dueDate}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+                )}
+            Text(
+                text = "📅 ${item.dueDate}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
 
-    @Preview
-    @Composable
-    private fun TaskItemPreview() {
-        val items = MockDataFactory.getDataList().filterIsInstance<TaskNoteType.Task>()
-        Column {
-            TaskItem04(item = items[0], toggleTaskDone = {})
-            Spacer(modifier = Modifier.padding(8.dp))
-
-        }
+@Preview
+@Composable
+private fun TaskItemPreview() {
+    val items = MockDataFactory.getDataList().filterIsInstance<TaskNoteType.Task>()
+    Column {
+        TaskItem04(item = items[0], onChecked = {})
+        Spacer(modifier = Modifier.padding(8.dp))
+        TaskItem04(item = items[1], onChecked = {})
     }
+}
+
+
 
 

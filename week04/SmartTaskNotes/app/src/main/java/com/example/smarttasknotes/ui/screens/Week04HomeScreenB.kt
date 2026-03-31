@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,14 +27,23 @@ import com.example.smarttasknotes.data.model.TaskNoteType
 import com.example.smarttasknotes.ui.components.TaskNoteItem04
 import com.example.smarttasknotes.ui.components.TaskNoteTitle
 
-@Composable
+@Composable        //변수명 : 타입 = 값 할당을 안 하면 기존 값
 fun Week04HomeScreenB(modifier: Modifier = Modifier) {
-    val itemList = remember {
-        MockDataFactory
-            .getDataList().toMutableStateList()
+    // 💡 핵심 변경 포인트: 미리보기에서 바로 사진처럼 보이도록 초기 데이터를 수정합니다.
+    val itemList = remember { // 중괄호 안에 내용을 기억
+        MockDataFactory.getDataList().map { item ->
+            // "모프 복습"이라는 제목을 가진 Task를 찾아서 강제로 완료(done = true) 처리
+            if (item is TaskNoteType.Task && item.title == "모프 복습") {
+                item.copy(done = true)//data 클래스, done변수 값만 true로
+            } else {
+                item
+            }
+        }.toMutableStateList() // list의 상태를 mutable상태로
     }
 
     var title by remember { mutableStateOf("") }
+    var showIncompleteOnly by remember { mutableStateOf(false) }
+    //title이라는 변수를 mutablestate로 기억
 
     fun addTaskItem() {
         if (title.isEmpty()) return
@@ -46,6 +57,13 @@ fun Week04HomeScreenB(modifier: Modifier = Modifier) {
             val task = itemList[index] as TaskNoteType.Task
             itemList[index] = task.copy(done = !task.done)
         }
+    }
+
+    // 스위치가 켜졌을 때 필터링 로직
+    val filteredList = if (showIncompleteOnly) {
+        itemList.filter { it is TaskNoteType.Task && !it.done }
+    } else {
+        itemList
     }
 
     Column(
@@ -72,9 +90,7 @@ fun Week04HomeScreenB(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = {
-                addTaskItem()
-            },
+            onClick = { addTaskItem() },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("등록")
@@ -93,15 +109,18 @@ fun Week04HomeScreenB(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 12.dp, bottom = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("미완성만 보기")
-            // TODO : Switch 추가하기
 
+                Switch(
+                    checked = showIncompleteOnly,
+                    onCheckedChange = { showIncompleteOnly = it }
+                )
             }
 
-            // TODO : TaskNoteItem04가 수행되도록 수정
-            itemList.forEach {
+            filteredList.forEach {
                 TaskNoteItem04(item = it, toggleTaskDone = toggleTaskDone)
                 Spacer(Modifier.height(8.dp))
             }
@@ -109,7 +128,7 @@ fun Week04HomeScreenB(modifier: Modifier = Modifier) {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun Week04HomeScreenBPreview() {
     Week04HomeScreenB()
