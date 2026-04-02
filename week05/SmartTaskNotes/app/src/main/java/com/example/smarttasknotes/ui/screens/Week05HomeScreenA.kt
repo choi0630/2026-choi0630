@@ -2,11 +2,15 @@ package com.example.smarttasknotes.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -24,44 +28,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.smarttasknotes.data.mock.MockDataFactory
 import com.example.smarttasknotes.data.model.TaskNoteType
+import com.example.smarttasknotes.ui.components.SingleChoiceButton
 import com.example.smarttasknotes.ui.components.TaskNoteItem
 import com.example.smarttasknotes.ui.components.TaskNoteTitle
-import kotlin.collections.filter
-import kotlin.collections.forEach
-import kotlin.collections.indexOfFirst
-import kotlin.text.isBlank
-import kotlin.text.isEmpty
-
-
-// 1) LazyColumn 적용하기
-// 2) SingleChoiceButton 적용하기
-// 3) 등록 버튼 클릭 : Task 또는 Note 저장
+import com.example.smarttasknotes.util.HomeTab
 
 @Composable
 fun Week05HomeScreenA(modifier: Modifier = Modifier) {
-    val itemList = remember {
-        MockDataFactory
-            .getDataList().toMutableStateList()
-    }
 
+    val itemList = remember { MockDataFactory.getDataList().toMutableStateList() }
     var title by remember { mutableStateOf("") }
     var dueDate by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
-
+    var selectedHomeTab by remember { mutableStateOf(HomeTab.TASK) }
     var showOnlyUncompleted by remember { mutableStateOf(false) }
-    val filteredItems = if (showOnlyUncompleted) {
-        itemList.filter { it is TaskNoteType.Task && !it.done }
-    } else {
-        itemList
-    }
 
-    val toggleTaskDone = { taskId: Int ->
-        val index = itemList.indexOfFirst { it is TaskNoteType.Task && it.id == taskId }
-        if (index != -1) {
-            val task = itemList[index] as TaskNoteType.Task
-            itemList[index] = task.copy(done = !task.done)
-        }
-    }
 
     fun clearInputs() {
         title = ""
@@ -70,42 +51,51 @@ fun Week05HomeScreenA(modifier: Modifier = Modifier) {
     }
 
     fun addTaskItem() {
-        if (title.isEmpty()) return
-        if (dueDate.isBlank())
-            itemList.add(TaskNoteType.Task(id = itemList.size, title = title))
-        else
-            itemList.add(TaskNoteType.Task(id = itemList.size, title = title, dueDate = dueDate))
-
-        clearInputs()
+        if (title.isNotBlank()) {
+            itemList.add(0, TaskNoteType.Task(id = itemList.size, title = title, dueDate = dueDate))
+            clearInputs()
+        }
     }
 
     fun addNoteItem() {
-        if (title.isBlank() || content.isBlank()) return
-        val newNote = TaskNoteType.Note(
-            id = itemList.size,
-            title = title,
-            content = content
-        )
-        itemList.add(newNote)
-
-        clearInputs()
+        if (title.isNotBlank() && content.isNotBlank()) {
+            itemList.add(0, TaskNoteType.Note(id = itemList.size, title = title, content = content))
+            clearInputs()
+        }
     }
+
+    val toggleTaskDone: (Int) -> Unit = { taskId ->
+        val index = itemList.indexOfFirst { it is TaskNoteType.Task && it.id == taskId }
+        if (index != -1) {
+            val task = itemList[index] as TaskNoteType.Task
+            itemList[index] = task.copy(done = !task.done)
+        }
+    }
+
+
+    val filteredItems = if (showOnlyUncompleted) {
+        itemList.filter { it is TaskNoteType.Task && !it.done }
+    } else {
+        itemList
+    }
+
 
     Column(
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(16.dp)
     ) {
         TaskNoteTitle()
+
         Spacer(modifier = Modifier.height(20.dp))
 
-        // TODO : SingleChoiceButton 호출하기
-
-        Text(
-            text = "입력한 내용을 바로 목록에 추가해보세요 ✨",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+        // [사진 4] SingleChoiceButton 호출
+        SingleChoiceButton(
+            selectedHomeTab = selectedHomeTab,
+            onChangeSelectedHomeTab = { selectedHomeTab = it }
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = title,
@@ -116,11 +106,28 @@ fun Week05HomeScreenA(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // TODO : Task의 마감일 또는 Note의 내용 입력
+        // [사진 5] 탭에 따른 입력 필드 분기
+        if (selectedHomeTab == HomeTab.TASK) {
+            OutlinedTextField(
+                value = dueDate,
+                onValueChange = { dueDate = it },
+                label = { Text("마감일") },
+                modifier = Modifier.fillMaxWidth()
+            )
+        } else {
+            OutlinedTextField(
+                value = content,
+                onValueChange = { content = it },
+                label = { Text("내용") },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-                addTaskItem()
+                if (selectedHomeTab == HomeTab.TASK) addTaskItem() else addNoteItem()
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -129,42 +136,40 @@ fun Week05HomeScreenA(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        if (itemList.isEmpty()) {
-            Text(
-                text = "📭 아직 등록된 항목이 없습니다.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("미완성만 보기")
+            Switch(
+                checked = showOnlyUncompleted,
+                onCheckedChange = { showOnlyUncompleted = it }
             )
-        } else {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("미완성만 보기")
-                Switch(
-                    checked = showOnlyUncompleted,
-                    onCheckedChange = { showOnlyUncompleted = it },
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-            }
+        }
 
-            // TODO : LazyColumn으로 변경하기
-            filteredItems.forEach {
+
+        LazyColumn(
+            contentPadding = PaddingValues(vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(items = filteredItems) { item ->
                 TaskNoteItem(
-                    item = it,
+                    item = item,
                     toggleTaskDone = toggleTaskDone
                 )
-                Spacer(Modifier.height(8.dp))
             }
         }
     }
 }
 
-@Preview
+
+@Preview(showBackground = true)
 @Composable
-private fun Week05HomeScreenAPreview() {
-    Week05HomeScreenA()
+fun Week05HomeScreenAPreview() {
+    MaterialTheme {
+        Week05HomeScreenA()
+    }
 }
+
+

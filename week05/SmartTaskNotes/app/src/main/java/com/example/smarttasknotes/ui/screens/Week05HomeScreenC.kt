@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.smarttasknotes.data.mock.MockDataFactory
 import com.example.smarttasknotes.data.model.TaskNoteType
 import com.example.smarttasknotes.ui.components.SingleChoiceButtonB
@@ -32,6 +33,7 @@ import com.example.smarttasknotes.ui.components.TaskNoteItem
 import com.example.smarttasknotes.ui.components.TaskNoteTitle
 import com.example.smarttasknotes.ui.components.TextInput
 import com.example.smarttasknotes.util.HomeTab
+import com.example.smarttasknotes.viewmodel.TaskNoteViewModel
 import kotlin.collections.filter
 import kotlin.collections.forEach
 import kotlin.collections.indexOfFirst
@@ -44,64 +46,10 @@ import kotlin.text.isEmpty
 // 3) 등록 버튼 클릭 : Task 또는 Note 저장
 
 @Composable
-fun Week05HomeScreenB(modifier: Modifier = Modifier) {
-    val itemList = remember {
-        MockDataFactory
-            .getDataList().toMutableStateList()
-    }
-
-    var title by rememberSaveable { mutableStateOf("") }
-    var dueDate by remember { mutableStateOf("") }
-    var content by remember { mutableStateOf("") }
-
-    var selectedHomeTab by remember { mutableStateOf(HomeTab.TASK) }
-    var showOnlyUncompleted by remember { mutableStateOf(false) }
-    val filteredItems = when (selectedHomeTab) {
-        HomeTab.TASK -> {
-            itemList.filterIsInstance<TaskNoteType.Task>()
-                .filter { !showOnlyUncompleted || !it.done }
-        }
-
-        HomeTab.NOTE -> {
-            itemList.filterIsInstance<TaskNoteType.Note>()
-        }
-    }
-
-    val toggleTaskDone = { taskId: Int ->
-        val index = itemList.indexOfFirst { it is TaskNoteType.Task && it.id == taskId }
-        if (index != -1) {
-            val task = itemList[index] as TaskNoteType.Task
-            itemList[index] = task.copy(done = !task.done)
-        }
-    }
-
-    fun clearInputs() {
-        title = ""
-        dueDate = ""
-        content = ""
-    }
-
-    fun addTaskItem() {
-        if (title.isEmpty()) return
-        if (dueDate.isBlank())
-            itemList.add(TaskNoteType.Task(id = itemList.size, title = title))
-        else
-            itemList.add(TaskNoteType.Task(id = itemList.size, title = title, dueDate = dueDate))
-
-        clearInputs()
-    }
-
-    fun addNoteItem() {
-        if (title.isBlank() || content.isBlank()) return
-        val newNote = TaskNoteType.Note(
-            id = itemList.size,
-            title = title,
-            content = content
-        )
-        itemList.add(newNote)
-
-        clearInputs()
-    }
+fun Week05HomeScreenC(
+    vm: TaskNoteViewModel = viewModel(),
+    modifier: Modifier = Modifier
+) {
 
     Column(
         modifier = modifier
@@ -112,8 +60,8 @@ fun Week05HomeScreenB(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(20.dp))
 
         SingleChoiceButtonB(
-            selectedHomeTab = selectedHomeTab,
-            onSelectedChange = { selectedHomeTab = it }
+            selectedHomeTab = vm.selectedHomeTab,
+            onSelectedChange = vm.onChangeHomeTab
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -124,25 +72,25 @@ fun Week05HomeScreenB(modifier: Modifier = Modifier) {
         )
 
         OutlinedTextField(
-            value = title,
-            onValueChange = { title = it },
+            value = vm.title,
+            onValueChange = vm.onTitleChange,
             label = { Text("제목") },
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (selectedHomeTab == HomeTab.NOTE) {
-            TextInput(content, "📝 내용", {content = it})
+        if (vm.selectedHomeTab == HomeTab.NOTE) {
+            TextInput(vm.content, "📝 내용", vm.onContentChange)
         }else{
-            TextInput(dueDate, "📅 마감일", {dueDate = it})
+            TextInput(vm.dueDate, "📅 마감일", vm.onDueDateChange)
         }
 
         Button(
             onClick = {
-                when(selectedHomeTab){
-                    HomeTab.NOTE -> addNoteItem()
-                    HomeTab.TASK -> addTaskItem()
+                when(vm.selectedHomeTab){
+                    HomeTab.NOTE -> vm.addNoteItem()
+                    HomeTab.TASK -> vm.addTaskItem()
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -152,7 +100,7 @@ fun Week05HomeScreenB(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        if (itemList.isEmpty()) {
+        if (vm.itemList.isEmpty()) {
             Text(
                 text = "📭 아직 등록된 항목이 없습니다.",
                 style = MaterialTheme.typography.bodyLarge,
@@ -168,8 +116,8 @@ fun Week05HomeScreenB(modifier: Modifier = Modifier) {
             ) {
                 Text("미완성만 보기")
                 Switch(
-                    checked = showOnlyUncompleted,
-                    onCheckedChange = { showOnlyUncompleted = it },
+                    checked = vm.showOnlyUncompleted,
+                    onCheckedChange = vm.onShowOnlyUncompletedChange,
                     modifier = Modifier.padding(end = 8.dp)
                 )
             }
@@ -178,10 +126,10 @@ fun Week05HomeScreenB(modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(items = filteredItems){
+                items(items = vm.filteredItems){
                     TaskNoteItem(
                         item = it,
-                        toggleTaskDone = toggleTaskDone
+                        toggleTaskDone = vm.toggleTaskDone
                     )
                 }
             }
@@ -189,8 +137,8 @@ fun Week05HomeScreenB(modifier: Modifier = Modifier) {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-private fun Week05HomeScreenBPreview() {
+private fun Week05HomeScreenCPreview() {
     Week05HomeScreenB()
 }
