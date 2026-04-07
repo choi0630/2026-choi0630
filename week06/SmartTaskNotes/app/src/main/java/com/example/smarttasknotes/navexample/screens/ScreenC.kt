@@ -30,3 +30,4 @@ fun ScreenC(onNavigate:()->Unit) {
         }
     }
 }
+

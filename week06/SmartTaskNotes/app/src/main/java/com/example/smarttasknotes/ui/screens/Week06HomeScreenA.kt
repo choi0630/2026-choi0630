@@ -113,7 +113,8 @@ fun Week06HomeScreenA(
                 items(items = vm.filteredItems) {
                     TaskNoteItem(
                         item = it,
-                        toggleTaskDone = vm.toggleTaskDone
+                        toggleTaskDone = vm.toggleTaskDone,
+                        onDeleteTask = vm.onDeleteTask,
                     )
                 }
             }

@@ -3,7 +3,6 @@ package com.example.smarttasknotes.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -19,15 +18,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.smarttasknotes.data.mock.MockDataFactory
 import com.example.smarttasknotes.data.model.TaskNoteType
 
 @Composable
 fun TaskItem(
     item: TaskNoteType.Task,
     toggleTaskDone: (Int) -> Unit,
+    onDeleteTask: (TaskNoteType.Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card {
@@ -64,7 +62,7 @@ fun TaskItem(
                     modifier = Modifier.padding(start = 16.dp)
                 )
             }
-            IconButton(onClick = { /*TODO()*/ }) {
+            IconButton(onClick = { onDeleteTask(item) }) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     tint = MaterialTheme.colorScheme.primary,
@@ -85,4 +83,3 @@ fun TaskItem(
 //        TaskItem(item = items[1], toggleTaskDone = {})
 //    }
 //}
-

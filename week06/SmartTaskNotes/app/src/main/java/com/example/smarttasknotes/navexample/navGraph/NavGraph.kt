@@ -8,6 +8,7 @@ import com.example.smarttasknotes.navexample.screens.HomeScreen
 import com.example.smarttasknotes.navexample.screens.ScreenA
 import com.example.smarttasknotes.navexample.screens.ScreenB
 import com.example.smarttasknotes.navexample.screens.ScreenC
+import com.example.smarttasknotes.navexample.screens.ScreenD
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -22,6 +23,9 @@ object B
 @Serializable
 object C
 
+@Serializable
+object D
+
 @Composable
 fun NavGraph(
     navController: NavHostController
@@ -34,13 +38,19 @@ fun NavGraph(
             )
         }
         composable<A> {
-            ScreenA(onNavigate = {navController.navigate(route = C)})
+            ScreenA(
+                onNavigateC = { navController.navigate(route = C) },
+                onNavigateD = { navController.navigate(route = D) },
+            )
         }
         composable<B> {
             ScreenB()
         }
         composable<C> {
-            ScreenC(onNavigate = {navController.navigate(route = Home)})
+            ScreenC(onNavigate = { navController.navigate(route = Home) })
+        }
+        composable<D> {
+            ScreenD (onNavigate = { navController.navigate(route = Home) })
         }
     }
 }

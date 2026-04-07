@@ -14,12 +14,14 @@ import com.example.smarttasknotes.data.model.TaskNoteType
 fun TaskNoteItem(
     item: TaskNoteType,
     toggleTaskDone: (Int) -> Unit,
+    onDeleteTask: (TaskNoteType.Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (item) {
         is TaskNoteType.Task -> TaskItem(
             item = item,
             toggleTaskDone = toggleTaskDone,
+            onDeleteTask = onDeleteTask,
             modifier = modifier
         )
         is TaskNoteType.Note -> NoteItem(
@@ -35,7 +37,7 @@ private fun TaskNoteItemPreview() {
     val items = MockDataFactory.getDataList()
     Column {
         items.forEach { item ->
-            TaskNoteItem(item = item, toggleTaskDone = {})
+            TaskNoteItem(item = item, toggleTaskDone = {}, onDeleteTask = {})
             Spacer(Modifier.height(8.dp))
         }
     }

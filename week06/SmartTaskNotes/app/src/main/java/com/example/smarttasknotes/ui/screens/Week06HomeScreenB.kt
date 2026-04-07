@@ -98,7 +98,8 @@ fun Week06HomeScreenB(
                 items(items = homeUiState.filteredItems) {
                     TaskNoteItem(
                         item = it,
-                        toggleTaskDone = homeUiActions.toggleTaskDone
+                        toggleTaskDone = homeUiActions.toggleTaskDone,
+                        onDeleteTask = {},
                     )
                 }
             }

@@ -22,8 +22,7 @@ fun main() {
                 val saved = "$text $now"
                 items.add(saved)
             }
-
-            2 -> {
+2 -> {
                 if(items.isEmpty()){
                     println("등록된 항목이 없습니다.")
                 }else{
